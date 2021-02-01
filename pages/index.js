@@ -3,7 +3,12 @@ import { useEffect, useRef, useCallback } from 'react'
 export default function Index() {
   const workerRef = useRef()
   useEffect(() => {
-    workerRef.current = new Worker('../worker.js', { type: 'module' })
+    workerRef.current = new Worker(
+      new URL('../worker.js', import.meta.url),
+      {
+          type: 'module',
+      }
+    )
     workerRef.current.onmessage = (evt) =>
       alert(`WebWorker Response => ${evt.data}`)
     return () => {
