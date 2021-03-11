@@ -1,28 +1,33 @@
 import { useEffect, useRef, useCallback } from 'react'
+import { wrap as ComlinkWrap } from 'comlink'
 
 export default function Index() {
-  const workerRef = useRef()
+
+  const comlinkWorkerRef = useRef()
+  const comlinkWorkerApiRef = useRef()
+
   useEffect(() => {
-    workerRef.current = new Worker(
-      new URL('../worker.js', import.meta.url),
+    comlinkWorkerRef.current = new Worker(
+      new URL('../pi.worker.js', import.meta.url),
       {
-          type: 'module',
+        type: 'module',
       }
     )
-    workerRef.current.onmessage = (evt) =>
-      alert(`WebWorker Response => ${evt.data}`)
+    comlinkWorkerApiRef.current = ComlinkWrap(
+      comlinkWorkerRef.current
+    )
     return () => {
-      workerRef.current.terminate()
+      comlinkWorkerRef.current?.terminate()
     }
   }, [])
 
   const handleWork = useCallback(async () => {
-    workerRef.current.postMessage(100000)
+    comlinkWorkerApiRef.current?.pi(100000)
   }, [])
 
   return (
     <div>
-      <p>Do work in a WebWorker!</p>
+      <p>Do work in a WebWorker via Comlink!</p>
       <button onClick={handleWork}>Calculate PI</button>
     </div>
   )
